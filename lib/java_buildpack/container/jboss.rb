@@ -30,6 +30,7 @@ module JavaBuildpack
       # (see JavaBuildpack::Component::BaseComponent#compile)
       def compile
         download_tar
+        copy_maria_db_driver
         update_configuration
         copy_application
         copy_additional_libraries
@@ -39,6 +40,7 @@ module JavaBuildpack
       # (see JavaBuildpack::Component::BaseComponent#release)
       def release
         @droplet.environment_variables.add_environment_variable 'JAVA_OPTS', '$JAVA_OPTS'
+
         @droplet.java_opts
                 .add_system_property('jboss.http.port', '$PORT')
                 .add_system_property('java.net.preferIPv4Stack', true)
@@ -95,13 +97,37 @@ module JavaBuildpack
       end
 
       def update_configuration
-        standalone_config = @droplet.sandbox + 'standalone/configuration/standalone.xml'
+        standalone_xml = @droplet.sandbox + 'standalone/configuration/standalone.xml'
 
-        modified = standalone_config.read
-                                    .gsub(%r{<location name="/" handler="welcome-content"/>},
-                                          '<!-- <location name="/" handler="welcome-content"/> -->')
+        standalone_xml_in_ear = @application.root + 'META-INF/cf/standalone.xml'
+        if standalone_xml_in_ear.exists?
+          FileUtils.copy_file(standalone_xml_in_ear, standalone_xml)
+        else
+          modified = standalone_xml.read
+                         .gsub(%r{<location name="/" handler="welcome-content"/>},
+                               '<!-- <location name="/" handler="welcome-content"/> -->')
 
-        standalone_config.open('w') { |f| f.write modified }
+          standalone_xml.open('w') { |f| f.write modified }
+        end
+
+        standalone_conf_in_ear = @application.root + 'META-INF/cf/standalone.conf'
+        if standalone_conf_in_ear.exists?
+          standalone_conf = @droplet.sandbox + 'bin/standalone.conf'
+          FileUtils.copy_file(standalone_conf_in_ear, standalone_conf)
+        end
+      end
+
+      def copy_maria_db_driver
+        maria_db_lib_jar = @application.root + 'lib/mariadb-java-client-2.3.0.jar'
+        maria_db_module = @application.root + 'META-INF/cf/module.xml'
+        driver_destination = @droplet.sandbox + 'modules/system/layers/base/org/mariadb/mariadb-java-client/main/'
+        FileUtils.mkdir_p(driver_destination)
+        if maria_db_lib_jar.exists?
+          FileUtils.copy_file(maria_db_lib_jar, driver_destination)
+        end
+        if maria_db_module.exists?
+          FileUtils.copy_file(maria_db_module, driver_destination)
+        end
       end
 
       def webapps
