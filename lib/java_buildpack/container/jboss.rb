@@ -101,7 +101,7 @@ module JavaBuildpack
 
         standalone_xml_in_ear = @application.root + 'META-INF/cf/standalone.xml'
         if standalone_xml_in_ear.exist?
-          FileUtils.copy_file(standalone_xml_in_ear, standalone_xml)
+          FileUtils.cp(standalone_xml_in_ear, standalone_xml)
         else
           modified = standalone_xml.read
                          .gsub(%r{<location name="/" handler="welcome-content"/>},
@@ -113,7 +113,7 @@ module JavaBuildpack
         standalone_conf_in_ear = @application.root + 'META-INF/cf/standalone.conf'
         if standalone_conf_in_ear.exist?
           standalone_conf = @droplet.sandbox + 'bin/standalone.conf'
-          FileUtils.copy_file(standalone_conf_in_ear, standalone_conf)
+          FileUtils.cp(standalone_conf_in_ear, standalone_conf)
         end
       end
 
@@ -123,10 +123,10 @@ module JavaBuildpack
         driver_destination = @droplet.sandbox + 'modules/system/layers/base/org/mariadb/mariadb-java-client/main/'
         FileUtils.mkdir_p(driver_destination)
         if maria_db_lib_jar.exist?
-          FileUtils.copy_file(maria_db_lib_jar, driver_destination)
+          FileUtils.cp(maria_db_lib_jar, driver_destination)
         end
         if maria_db_module.exist?
-          FileUtils.copy_file(maria_db_module, driver_destination)
+          FileUtils.cp(maria_db_module, driver_destination)
         end
       end
 
