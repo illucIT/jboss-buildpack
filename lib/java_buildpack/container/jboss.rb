@@ -118,7 +118,7 @@ module JavaBuildpack
       end
 
       def copy_maria_db_driver
-        maria_db_lib_jar = @application.root + 'lib/mariadb-java-client-2.3.0.jar'
+        maria_db_lib_jar = @application.root + 'lib/mariadb-java-client.jar'
         maria_db_module = @application.root + 'META-INF/cf/module.xml'
         driver_destination = @droplet.sandbox + 'modules/system/layers/base/org/mariadb/mariadb-java-client/main/'
         FileUtils.mkdir_p(driver_destination)
