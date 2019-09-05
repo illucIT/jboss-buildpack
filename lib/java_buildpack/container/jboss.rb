@@ -115,6 +115,11 @@ module JavaBuildpack
           standalone_conf = @droplet.sandbox + 'bin/standalone.conf'
           FileUtils.cp(standalone_conf_in_ear, standalone_conf)
         end
+
+        prepare_in_ear = @application.root + 'META-INF/cf/prepare.py'
+        if prepare_in_ear.exist?
+          FileUtils.cp(prepare_in_ear, @droplet.sandbox + 'bin/')
+        end
       end
 
       def copy_maria_db_driver
