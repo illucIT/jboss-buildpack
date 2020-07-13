@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # Cloud Foundry Java Buildpack
-# Copyright 2013-2019 the original author or authors.
+# Copyright 2013-2020 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -64,7 +64,7 @@ describe JavaBuildpack::Framework::TakipiAgent do
       it 'updates user environment variables' do
         component.release
 
-        expect(environment_variables).to include('TAKIPI_MASTER_HOST=test-host')
+        expect(environment_variables).to include('TAKIPI_COLLECTOR_HOST=test-host')
       end
 
       context 'with secret key' do

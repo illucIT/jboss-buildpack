@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # Cloud Foundry Java Buildpack
-# Copyright 2013-2019 the original author or authors.
+# Copyright 2013-2020 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -50,10 +50,11 @@ describe JavaBuildpack::Framework::DynatraceAppmonAgent do
       expect(sandbox + 'agent/lib64/libdtagent.so').to exist
     end
 
-    it 'updates JAVA_OPTS' do
+    it 'updates JAVA_OPTS and share set to off' do
       component.release
       expect(java_opts).to include('-agentpath:$PWD/.java-buildpack/dynatrace_appmon_agent/agent/lib64/'\
         'libdtagent.so=name=test-application-name_Monitoring,server=test-host-name')
+      expect(java_opts).to include('-Xshare:off')
     end
 
     context do

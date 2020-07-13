@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # Cloud Foundry Java Buildpack
-# Copyright 2013-2019 the original author or authors.
+# Copyright 2013-2020 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -314,8 +314,11 @@ module JavaBuildpack
                         URI.parse(ENV['http_proxy'] || ENV['HTTP_PROXY'] || '')
                       end
 
-          @logger.debug { "Proxy: #{proxy_uri.host}, #{proxy_uri.port}, #{proxy_uri.user}, #{proxy_uri.password}" }
-          Net::HTTP::Proxy(proxy_uri.host, proxy_uri.port, proxy_uri.user, proxy_uri.password)
+          proxy_user = proxy_uri.user ? URI.decode_www_form_component(proxy_uri.user) : nil
+          proxy_pass = proxy_uri.password ? URI.decode_www_form_component(proxy_uri.password) : nil
+
+          @logger.debug { "Proxy: #{proxy_uri.host}, #{proxy_uri.port}, #{proxy_user}, #{proxy_pass}" }
+          Net::HTTP::Proxy(proxy_uri.host, proxy_uri.port, proxy_user, proxy_pass)
         end
 
         def redirect?(response)

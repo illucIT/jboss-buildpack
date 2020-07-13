@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # Cloud Foundry Java Buildpack
-# Copyright 2013-2019 the original author or authors.
+# Copyright 2013-2020 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -56,6 +56,16 @@ describe JavaBuildpack::Container::DistZipLike do
 
     expect(component.release).to eq("test-var-2 test-var-1 JAVA_OPTS=$JAVA_OPTS #{java_home.as_env_var} exec " \
                                     '$PWD/bin/application')
+  end
+
+  context do
+    let(:configuration) { { 'arguments' => 'some arguments' } }
+
+    it 'returns command line arguments when they are specified',
+       app_fixture: 'container_dist_zip' do
+
+      expect(component.release).to end_with('some arguments')
+    end
   end
 
 end

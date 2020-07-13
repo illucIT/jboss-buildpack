@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # Cloud Foundry Java Buildpack
-# Copyright 2013-2019 the original author or authors.
+# Copyright 2013-2020 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -77,14 +77,14 @@ module JavaBuildpack
       def config_env_vars(credentials)
         env = @droplet.environment_variables
 
-        secret_key = credentials['secret_key']
-        env.add_environment_variable 'TAKIPI_SECRET_KEY', secret_key if secret_key
-
         collector_host = credentials['collector_host']
-        env.add_environment_variable 'TAKIPI_MASTER_HOST', collector_host if collector_host
+        env.add_environment_variable 'TAKIPI_COLLECTOR_HOST', collector_host if collector_host
 
         collector_port = credentials['collector_port']
-        env.add_environment_variable 'TAKIPI_MASTER_PORT', collector_port if collector_port
+        env.add_environment_variable 'TAKIPI_COLLECTOR_PORT', collector_port if collector_port
+
+        secret_key = credentials['secret_key']
+        env.add_environment_variable 'TAKIPI_SECRET_KEY', secret_key if secret_key
       end
 
       def lib

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # Cloud Foundry Java Buildpack
-# Copyright 2013-2019 the original author or authors.
+# Copyright 2013-2020 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -34,7 +34,7 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::BaseComponent#release)
       def release
-        credentials = @application.services.find_service(FILTER, %w[agent_manager_url url])['credentials']
+        credentials = @application.services.find_service(FILTER)['credentials']
         java_opts = @droplet.java_opts
 
         java_opts
@@ -44,18 +44,14 @@ module JavaBuildpack
           .add_system_property('com.wily.introscope.agent.agentName', agent_name(credentials))
           .add_system_property('introscope.agent.defaultProcessName', default_process_name(credentials))
 
-        if agent_manager_credential(credentials)
-          java_opts.add_system_property('agentManager.credential', agent_manager_credential(credentials))
-        end
-
-        add_url(credentials, java_opts)
+        export_all_properties(credentials, java_opts)
       end
 
       protected
 
       # (see JavaBuildpack::Component::VersionedDependencyComponent#supports?)
       def supports?
-        @application.services.one_service? FILTER, %w[agent_manager_url url]
+        @application.services.one_service? FILTER, %w[agentManager_url_1 agent_manager_url]
       end
 
       private
@@ -121,11 +117,24 @@ module JavaBuildpack
       end
 
       def agent_manager_url(credentials)
-        credentials['agent_manager_url'] || credentials['url']
+        credentials['agentManager_url_1'] || credentials['agent_manager_url']
       end
 
       def agent_manager_credential(credentials)
         credentials['agent_manager_credential'] || credentials['credential']
+      end
+
+      def export_all_properties(credentials, java_opts)
+        credentials.each_key do |key|
+          correct_key = key.tr('_', '.')
+          if %w[agentManager.url.1 agent.manager.url].include?(correct_key)
+            add_url(credentials, java_opts)
+          elsif %w[agent.manager.credential credential].include?(correct_key)
+            java_opts.add_system_property('agentManager.credential', agent_manager_credential(credentials))
+          else
+            java_opts.add_system_property(correct_key, credentials[key])
+          end
+        end
       end
     end
   end

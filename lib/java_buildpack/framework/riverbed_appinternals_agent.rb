@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # Cloud Foundry Java Buildpack
-# Copyright 2013-2019 the original author or authors.
+# Copyright 2013-2020 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@
 require 'fileutils'
 require 'java_buildpack/component/versioned_dependency_component'
 require 'java_buildpack/framework'
+
 module JavaBuildpack
   module Framework
 
@@ -32,8 +33,6 @@ module JavaBuildpack
 
       # (see JavaBuildpack::Component::BaseComponent#release)
       def release
-        credentials = @application.services.find_service(FILTER)['credentials']
-
         @droplet.environment_variables
                 .add_environment_variable('AIX_INSTRUMENT_ALL', 1)
                 .add_environment_variable('DSA_PORT', dsa_port(credentials))
@@ -65,6 +64,14 @@ module JavaBuildpack
         @droplet.sandbox + 'agent/lib' + lib_name
       end
 
+      def credentials
+        service['credentials'] unless service.nil?
+      end
+
+      def service
+        @application.services.find_service(FILTER)
+      end
+
       def agent_port(credentials)
         credentials['rvbd_agent_port'] || 7073
       end
@@ -84,6 +91,7 @@ module JavaBuildpack
       def rvbd_moniker(credentials)
         credentials['rvbd_moniker'] || @configuration['rvbd_moniker']
       end
+
     end
   end
 end

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # Cloud Foundry Java Buildpack
-# Copyright 2013-2019 the original author or authors.
+# Copyright 2013-2020 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -64,7 +64,6 @@ module JavaBuildpack
     # @return [Hash] a representation of the buildpack version
     def to_hash
       h            = {}
-
       h['hash']    = @hash if @hash
       h['offline'] = @offline if @offline
       h['remote']  = @remote if @remote
@@ -86,7 +85,7 @@ module JavaBuildpack
     # @return [String] a +String+ representation of the version
     def to_s(human_readable = true)
       s = []
-      s << @version.blue if @version
+      s << (human_readable ? @version.blue : @version) if @version
       s << (human_readable ? '(offline)'.blue : 'offline') if @offline
 
       if remote_string

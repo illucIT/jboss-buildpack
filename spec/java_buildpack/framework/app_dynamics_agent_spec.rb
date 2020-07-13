@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # Cloud Foundry Java Buildpack
-# Copyright 2013-2019 the original author or authors.
+# Copyright 2013-2020 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -141,8 +141,30 @@ describe JavaBuildpack::Framework::AppDynamicsAgent do
           expect(java_opts).to include('-Dappdynamics.agent.accountAccessKey=test-account-access-key')
         end
       end
+
+      context do
+
+        let(:environment) { { 'APPD_CONF_HTTP_URL' => 'http://foo.com' } }
+        let(:conf_files) { described_class.instance_variable_get(:@conf_files) }
+
+        it 'sets APPD_CONF_HTTP_URL env var to download config files from',
+           cache_fixture: 'stub-app-dynamics-agent.zip' do
+
+          config_files = %w[logging/log4j2.xml logging/log4j.xml app-agent-config.xml controller-info.xml
+                            service-endpoint.xml transactions.xml custom-interceptors.xml
+                            custom-activity-correlation.xml]
+
+          config_files.each do |file|
+            uri = "http://foo.com/java/#{file}"
+            allow(application_cache).to receive(:get)
+              .with(uri)
+            stub_request(:head, uri)
+              .with(headers: { 'Accept' => '*/*', 'Host' => 'foo.com', 'User-Agent' => 'Ruby' })
+              .to_return(status: 200, body: '', headers: {})
+          end
+          component.compile
+        end
+      end
     end
-
   end
-
 end

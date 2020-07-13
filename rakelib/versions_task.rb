@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # Cloud Foundry Java Buildpack
-# Copyright 2013-2019 the original author or authors.
+# Copyright 2013-2020 the original author or authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -60,9 +60,9 @@ module Package
       'container_customizer' => 'Spring Boot Container Customizer',
       'container_security_provider' => 'Container Security Provider',
       'contrast_security_agent' => 'Contrast Security Agent',
-      'dyadic_ekm_security_provider' => 'Dyadic EKM Security Provider',
       'dynatrace_appmon_agent' => 'Dynatrace Appmon Agent',
       'dynatrace_one_agent' => 'Dynatrace OneAgent',
+      'elastic_apm_agent' => 'Elastic APM Agent',
       'geode_store' => 'Geode Tomcat Session Store',
       'google_stackdriver_debugger' => 'Google Stackdriver Debugger',
       'google_stackdriver_profiler' => 'Google Stackdriver Profiler',
@@ -73,6 +73,7 @@ module Package
       'jprofiler_profiler' => 'JProfiler Profiler',
       'jre' => 'OpenJDK JRE',
       'jre-11' => 'OpenJDK JRE 11',
+      'jre-14' => 'OpenJDK JRE 14',
       'jrebel_agent' => 'JRebel Agent',
       'jvmkill_agent' => 'jvmkill Agent',
       'lifecycle_support' => 'Tomcat Lifecycle Support',
@@ -165,6 +166,13 @@ module Package
           configurations << c1
         end
 
+        if component_id == 'open_jdk_jre' && sub_component_id == 'jre'
+          c1 = configuration.clone
+          c1['sub_component_id'] = 'jre-14'
+          c1['version'] = '14.+'
+
+          configurations << c1
+        end
         configurations << configuration
       else
         configuration.each { |k, v| configurations << configurations(component_id, v, k) if v.is_a? Hash }
